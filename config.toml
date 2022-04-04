@@ -24,6 +24,6 @@ pixel_file = "pixel.json"
 [[structure]]
 name = "logo"
 file = "images/logo.png"
-startx = 1481
+startx = 1479
 starty = 416
 priority = 1

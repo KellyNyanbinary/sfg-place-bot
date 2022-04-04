@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SR2 Bot
 // @namespace    https://github.com/14ROVI/sr2-place-bot
-// @version      3.1
+// @version      3.2
 // @description  SimpleRockets Chat community bot
 // @author       14ROVI
 // @match        https://www.reddit.com/r/place/*
@@ -20,7 +20,7 @@ var placeOrders = [];
 var accessToken;
 var canvas = document.createElement('canvas');
 
-const VERSION = 3.1
+const VERSION = 3.2
 var UPDATE_PENDING = false;
 
 const COLOR_MAPPINGS = {
@@ -108,40 +108,41 @@ function getPixelList() {
 
 async function attemptPlace() {
 	const pixelList = getPixelList();
-	const order = pixelList[0];
-	console.log(order)
-	const x = order.x;
-	const y = order.y;
-	const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
+	for (const order of pixelList) {
+		const x = order.x;
+		const y = order.y;
+		const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
 
-	Toastify({
-		text: `Placing pixel at (${x}, ${y}) ${order.color}`,
-		duration: 10000
-	}).showToast();
-	console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
+		Toastify({
+			text: `Placing pixel at (${x}, ${y}) ${order.color}`,
+			duration: 10000
+		}).showToast();
+		console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
 
-	const time = new Date().getTime();
-	let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
+		const time = new Date().getTime();
+		let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
 
-	// Sanity check timestamp
-	if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
-		nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
+		// Sanity check timestamp
+		if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
+			nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
+		}
+
+		// Add a few random seconds to the next available pixel timestamp
+		const waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
+
+		const minutes = Math.floor(waitFor / (1000 * 60))
+		const seconds = Math.floor((waitFor / 1000) % 60)
+		Toastify({
+			text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
+			duration: waitFor
+		}).showToast();
+		
+		setTimeout(
+			attemptPlace,
+			waitFor
+		);
+		return;
 	}
-
-	// Add a few random seconds to the next available pixel timestamp
-	const waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
-
-	const minutes = Math.floor(waitFor / (1000 * 60))
-	const seconds = Math.floor((waitFor / 1000) % 60)
-	Toastify({
-		text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
-		duration: waitFor
-	}).showToast();
-	
-	setTimeout(
-		attemptPlace,
-		waitFor
-	);
 }
 
 

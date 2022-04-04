@@ -3,7 +3,7 @@ ignore_colors = [
 	[255, 255, 255, 0],
 	# [0, 0, 0, 255], # filter all black
 ]
-version = 3.1
+version = 3.2
 pixel_file = "pixel.json"
 
 # priority: higher number = higher chance of being placed

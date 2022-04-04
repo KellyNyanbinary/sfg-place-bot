@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Space Flight Group Bot
 // @namespace    https://github.com/KellyNyanbinary/sfg-place-bot
-// @version      0
+// @version      1
 // @description  Space Flight Group r/place bot
 // @author       14ROVI and KellyNyanbinary
 // @match        https://www.reddit.com/r/place/*
@@ -15,7 +15,7 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-const VERSION = 0
+const VERSION = 1
 var UPDATE_PENDING = false;
 
 var accessToken;

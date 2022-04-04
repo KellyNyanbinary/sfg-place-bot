@@ -2,7 +2,7 @@
 // @name         SR2 Bot
 // @namespace    https://github.com/KellyNyanbinary/sfg-place-bot
 // @version      0
-// @description  SimpleRockets Chat community bot
+// @description  Space Flight Group r/place bot
 // @author       14ROVI and KellyNyanbinary
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*

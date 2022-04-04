@@ -15,7 +15,7 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-const VERSION = 4
+const VERSION = 0
 var UPDATE_PENDING = false;
 
 var accessToken;

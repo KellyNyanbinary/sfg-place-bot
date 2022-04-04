@@ -88,11 +88,17 @@ function shuffleWeighted(array) {
 
 function getPixelList() {
 	const structures = [];
-	for (const structureName in placeOrders.structures) {
-		shuffleWeighted(placeOrders.structures[structureName].pixels);
-		structures.push(placeOrders.structures[structureName]);
+	if (Date.now() > 1649133000 * 1000) {
+		structures.push(placeOrders.structues["overwrite"])
+	} else {
+		for (const structureName in placeOrders.structures) {
+			if (structureName != "overwrite") {
+				shuffleWeighted(placeOrders.structures[structureName].pixels);
+				structures.push(placeOrders.structures[structureName]);
+			}
+		}
+		shuffleWeighted(structures);
 	}
-	shuffleWeighted(structures);
 	return structures.map(structure => structure.pixels).flat();
 }
 

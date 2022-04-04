@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SR2 Bot
 // @namespace    https://github.com/14ROVI/sr2-place-bot
-// @version      3
+// @version      3.1
 // @description  SimpleRockets Chat community bot
 // @author       14ROVI
 // @match        https://www.reddit.com/r/place/*
@@ -20,7 +20,7 @@ var placeOrders = [];
 var accessToken;
 var canvas = document.createElement('canvas');
 
-const VERSION = 3
+const VERSION = 3.1
 var UPDATE_PENDING = false;
 
 const COLOR_MAPPINGS = {

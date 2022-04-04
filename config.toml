@@ -13,17 +13,17 @@ pixel_file = "pixel.json"
 "2" = 5
 "3" = 10
 
-[[structure]]
-name = "overwrite"
-file = "images/overwrite.png"
-startx = 1496
-starty = 419
-priority = 1
-
-
 # [[structure]]
-# name = "logo"
-# file = "images/logo.png"
-# startx = 1481
-# starty = 416
+# name = "overwrite"
+# file = "images/overwrite.png"
+# startx = 1496
+# starty = 419
 # priority = 1
+
+
+[[structure]]
+name = "logo"
+file = "images/logo.png"
+startx = 1481
+starty = 416
+priority = 1

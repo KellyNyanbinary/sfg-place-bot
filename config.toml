@@ -1,0 +1,29 @@
+ignore_colors = [
+	[0, 0, 0, 0],
+	[255, 255, 255, 0],
+	# [0, 0, 0, 255], # filter all black
+]
+version = 2.4
+pixel_file = "pixel.json"
+
+# priority: higher number = higher chance of being placed
+[priorities]
+"0" = 0
+"1" = 1
+"2" = 5
+"3" = 10
+
+[[structure]]
+name = "overwrite"
+file = "images/overwrite.png"
+startx = 1496
+starty = 419
+priority = 1
+
+
+# [[structure]]
+# name = "logo"
+# file = "images/logo.png"
+# startx = 1481
+# starty = 416
+# priority = 1

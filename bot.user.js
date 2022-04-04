@@ -108,40 +108,40 @@ function getPixelList() {
 
 async function attemptPlace() {
 	const pixelList = getPixelList();
+	const order = pixelList[0];
+	console.log(order)
+	const x = order.x;
+	const y = order.y;
+	const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
 
-	for (const order of pixelList) {
-		const x = order.x;
-		const y = order.y;
-		const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
+	Toastify({
+		text: `Placing pixel at (${x}, ${y}) ${order.color}`,
+		duration: 10000
+	}).showToast();
+	console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
 
-		Toastify({
-			text: `Placing pixel at (${x}, ${y}) ${order.color}`,
-			duration: 10000
-		}).showToast();
-		console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
+	const time = new Date().getTime();
+	let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
 
-		const time = new Date().getTime();
-		let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
-
-		// Sanity check timestamp
-		if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
-			nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
-		}
-
-		// Add a few random seconds to the next available pixel timestamp
-		const waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
-
-		const minutes = Math.floor(waitFor / (1000 * 60))
-		const seconds = Math.floor((waitFor / 1000) % 60)
-		Toastify({
-			text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
-			duration: waitFor
-		}).showToast();
-		setTimeout(attemptPlace, waitFor);
-		return;
+	// Sanity check timestamp
+	if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
+		nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
 	}
+
+	// Add a few random seconds to the next available pixel timestamp
+	const waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
+
+	const minutes = Math.floor(waitFor / (1000 * 60))
+	const seconds = Math.floor((waitFor / 1000) % 60)
+	Toastify({
+		text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
+		duration: waitFor
+	}).showToast();
 	
-	setTimeout(attemptPlace, 30000); // probeer opnieuw in 30sec.
+	setTimeout(
+		attemptPlace,
+		waitFor
+	);
 }
 
 

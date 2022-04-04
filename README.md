@@ -1,6 +1,6 @@
-# SR2 Bot
+# SFG place bot
 
-This bot uses **pixels.json** to place pixels down automatically on **r/place** for **The SimpleRockets Chat**.
+This bot uses **pixels.json** to place pixels down automatically on **r/place** for **The Space Flight Group**.
 
 ## Installation instructions
 

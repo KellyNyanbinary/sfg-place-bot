@@ -115,10 +115,10 @@ async function attemptPlace() {
 		const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
 
 		Toastify({
-			text: `Placing pixel at (${x}, ${y}) ${hex}`,
+			text: `Placing pixel at (${x}, ${y}) ${order.color}`,
 			duration: 10000
 		}).showToast();
-		console.log(`Placing pixel at (${x}, ${y}) ${hex}`)
+		console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
 
 		const time = new Date().getTime();
 		let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)

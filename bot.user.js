@@ -9,8 +9,8 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
 // @require	     https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @updateURL    https://github.com/14ROVI/sr2-place-bot/raw/master/bot.user.js
-// @downloadURL  https://github.com/14ROVI/sr2-place-bot/raw/master/bot.user.js
+// @updateURL    https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js
+// @downloadURL  https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -177,11 +177,11 @@ function updateOrders() {
 		if (data?.version !== VERSION && !UPDATE_PENDING) {
 			UPDATE_PENDING = true
 			Toastify({
-				text: `NEW VERSION: https://github.com/14ROVI/sr2-place-bot/raw/master/bot.user.js`,
+				text: `NEW VERSION: https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js`,
 				duration: -1,
 				onClick: () => {
 					// Tapermonkey captures this and opens a new tab
-					window.location = 'https://github.com/14ROVI/sr2-place-bot/raw/master/bot.user.js'
+					window.location = 'https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js'
 				}
 			}).showToast();
 

@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         SR2 Bot
+// @name         Space Flight Group Bot
 // @namespace    https://github.com/KellyNyanbinary/sfg-place-bot
 // @version      0
 // @description  Space Flight Group r/place bot

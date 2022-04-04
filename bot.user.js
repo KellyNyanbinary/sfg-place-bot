@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SR2 Bot
 // @namespace    https://github.com/14ROVI/sr2-place-bot
-// @version      3.2
+// @version      4
 // @description  SimpleRockets Chat community bot
 // @author       14ROVI
 // @match        https://www.reddit.com/r/place/*
@@ -15,55 +15,22 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-
-var placeOrders = [];
-var accessToken;
-var canvas = document.createElement('canvas');
-
-const VERSION = 3.2
+const VERSION = 4
 var UPDATE_PENDING = false;
 
-const COLOR_MAPPINGS = {
-	'#6D001A': 0,
-	'#BE0039': 1,
-	'#FF4500': 2,
-	'#FFA800': 3,
-	'#FFD635': 4,
-	'#FFF8B8': 5,
-	'#00A368': 6,
-	'#00CC78': 7,
-	'#7EED56': 8,
-	'#00756F': 9,
-	'#009EAA': 10,
-	'#00CCC0': 11,
-	'#2450A4': 12,
-	'#3690EA': 13,
-	'#51E9F4': 14,
-	'#493AC1': 15,
-	'#6A5CFF': 16,
-	'#94B3FF': 17,
-	'#811E9F': 18,
-	'#B44AC0': 19,
-	'#E4ABFF': 20,
-	'#DE107F': 21,
-	'#FF3881': 22,
-	'#FF99AA': 23,
-	'#6D482F': 24,
-	'#9C6926': 25,
-	'#FFB470': 26,
-	'#000000': 27,
-	'#515252': 28,
-	'#898D90': 29,
-	'#D4D7D9': 30,
-	'#FFFFFF': 31
-};
+var accessToken;
 
+
+async function getAccessToken() {
+	let usingOldReddit = window.location.href.includes('new.reddit.com');
+	let url = usingOldReddit ? 'https://new.reddit.com/r/place/' : 'https://www.reddit.com/r/place/';
+	let response = await fetch(url);
+	let responseText = await response.text();
+	return responseText.split('\"accessToken\":\"')[1].split('"')[0];
+}
 
 (async function () {
 	GM_addStyle(GM_getResourceText('TOASTIFY_CSS'));
-	canvas.width = 2000;
-	canvas.height = 2000;
-	canvas = document.body.appendChild(canvas);
 
 	Toastify({
 		text: 'Getting access token',
@@ -75,125 +42,103 @@ const COLOR_MAPPINGS = {
 		duration: 10000
 	}).showToast();
 
-	setInterval(updateOrders, 5 * 60 * 1000); // Update orders every 5 mins
-	await updateOrders();
-	attemptPlace();
+	await attemptPlace();
 })();
 
 
-function shuffleWeighted(array) {
-	for (const item of array) {
-		item.rndPriority = Math.round(placeOrders.priorities[item.priority] * Math.random());
-	}
-	array.sort((a, b) => b.rndPriority - a.rndPriority);
-}
-
-
-function getPixelList() {
-	const structures = [];
+function getRandomPixel(pixelData) {
+	let allPixels = []
 	if (Date.now() > 1649133000 * 1000) {
-		structures.push(placeOrders.structues["overwrite"])
+		allPixels.push(...pixelData.structues["overwrite"]["pixels"]);
 	} else {
-		for (const structureName in placeOrders.structures) {
+		for (let structureName in pixelData.structures) {
 			if (structureName != "overwrite") {
-				shuffleWeighted(placeOrders.structures[structureName].pixels);
-				structures.push(placeOrders.structures[structureName]);
+				allPixels.push(...pixelData.structures[structureName]["pixels"]);
 			}
 		}
-		shuffleWeighted(structures);
 	}
-	return structures.map(structure => structure.pixels).flat();
+	return allPixels[Math.floor(Math.random() * allPixels.length)];
 }
 
 
 async function attemptPlace() {
-	const pixelList = getPixelList();
-	for (const order of pixelList) {
-		const x = order.x;
-		const y = order.y;
-		const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
+	let pixelData = await getPixelData();
+	console.log(pixelData);
+	let randomPixel = getRandomPixel(pixelData);
+	console.log(randomPixel);
 
-		Toastify({
-			text: `Placing pixel at (${x}, ${y}) ${order.color}`,
-			duration: 10000
-		}).showToast();
-		console.log(`Placing pixel at (${x}, ${y}) ${order.color}`)
+	let x = randomPixel.x;
+	let y = randomPixel.y;
+	let colorId = randomPixel.color;
 
-		const time = new Date().getTime();
-		let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
+	console.log(`Placing pixel at (${x}, ${y}) ${randomPixel.color}`)
+	Toastify({
+		text: `Placing pixel at (${x}, ${y}) ${randomPixel.color}`,
+		duration: 10000
+	}).showToast();
 
-		// Sanity check timestamp
-		if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
-			nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
-		}
+	let time = new Date().getTime();
+	let nextAvailablePixelTimestamp = await place(x, y, colorId) ?? new Date(time + 1000 * 60 * 5 + 1000 * 15)
 
-		// Add a few random seconds to the next available pixel timestamp
-		const waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
-
-		const minutes = Math.floor(waitFor / (1000 * 60))
-		const seconds = Math.floor((waitFor / 1000) % 60)
-		Toastify({
-			text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
-			duration: waitFor
-		}).showToast();
-		
-		setTimeout(
-			attemptPlace,
-			waitFor
-		);
-		return;
+	// Sanity check timestamp
+	if (nextAvailablePixelTimestamp < time || nextAvailablePixelTimestamp > time + 1000 * 60 * 5 + 1000 * 15) {
+		nextAvailablePixelTimestamp = time + 1000 * 60 * 5 + 1000 * 15;
 	}
 
-	setTimeout(attemptPlace, 30000); // probeer opnieuw in 30sec.
+	// Add a few random seconds to the next available pixel timestamp
+	let waitFor = nextAvailablePixelTimestamp - time + (Math.random() * 1000 * 15);
+
+	let minutes = Math.floor(waitFor / (1000 * 60))
+	let seconds = Math.floor((waitFor / 1000) % 60)
+	Toastify({
+		text: `Waiting ${minutes}m ${seconds}s until ${new Date(nextAvailablePixelTimestamp).toLocaleTimeString()} to place new pixel`,
+		duration: waitFor
+	}).showToast();
+	
+	setTimeout(
+		attemptPlace,
+		waitFor
+	);
 }
 
 
-function updateOrders() {
-	fetch(`https://14rovi.github.io/sr2-place-bot/pixel.json`, {cache: "no-store"}).then(async (response) => {
-		if (!response.ok) return console.warn('Error getting the pixel map!');
-		const data = await response.json();
+async function getPixelData() {
+	let response = await fetch(
+		"https://14rovi.github.io/sr2-place-bot/pixel.json",
+		{cache: "no-store"}
+	)
+	if (!response.ok)
+		return console.warn('Error getting the pixel map!');
+		
+	let pixelData = await response.json();
 
-		if (JSON.stringify(data) !== JSON.stringify(placeOrders)) {
-			const structureCount = Object.keys(data.structures).length;
-			let pixelCount = 0;
-			for (const structureName in data.structures) {
-				pixelCount += data.structures[structureName].pixels.length;
+	let structureCount = Object.keys(pixelData.structures).length;
+	let pixelCount = 0;
+	for (let structureName in pixelData.structures) {
+		pixelCount += pixelData.structures[structureName].pixels.length;
+	}
+	Toastify({
+		text: `Structures: ${structureCount} - Pixels: ${pixelCount}.`,
+		duration: 10000
+	}).showToast();
+	
+	if (pixelData.version !== VERSION && !UPDATE_PENDING) {
+		UPDATE_PENDING = true
+		Toastify({
+			text: `NEW VERSION: https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js`,
+			duration: -1,
+			onClick: () => {
+				window.location = 'https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js'
 			}
-			Toastify({
-				text: `Structures: ${structureCount} - Pixels: ${pixelCount}.`,
-				duration: 10000
-			}).showToast();
-		}
+		}).showToast();
+	}
 
-		if (data?.version !== VERSION && !UPDATE_PENDING) {
-			UPDATE_PENDING = true
-			Toastify({
-				text: `NEW VERSION: https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js`,
-				duration: -1,
-				onClick: () => {
-					// Tapermonkey captures this and opens a new tab
-					window.location = 'https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js'
-				}
-			}).showToast();
-
-		}
-		placeOrders = data;
-	}).catch((e) => console.warn('Orders can\'t be loaded', e));
+	return pixelData;
 }
 
 
-function getCanvasId(x,y) {
-	return (x > 1000) + (y > 1000)*2
-}
-/**
- * Places a pixel on the canvas, returns the "nextAvailablePixelTimestamp", if succesfull
- * @param x
- * @param y
- * @param color
- * @returns {Promise<number>}
- */
 async function place(x, y, color) {
-	const response = await fetch('https://gql-realtime-2.reddit.com/query', {
+	let response = await fetch("https://gql-realtime-2.reddit.com/query", {
 		method: 'POST',
 		body: JSON.stringify({
 			'operationName': 'setPixel',
@@ -206,7 +151,7 @@ async function place(x, y, color) {
 							'y': y % 1000
 						},
 						'colorIndex': color,
-						'canvasIndex': getCanvasId(x,y)
+						'canvasIndex': ((x > 1000) + (y > 1000) * 2)
 					}
 				}
 			},
@@ -243,7 +188,7 @@ async function place(x, y, color) {
 			'Content-Type': 'application/json'
 		}
 	});
-	const data = await response.json()
+	let data = await response.json()
 	if (data.errors != undefined) {
 		Toastify({
 			text: 'Error placing pixel, waiting longer.',
@@ -252,20 +197,4 @@ async function place(x, y, color) {
 		return data.errors[0].extensions?.nextAvailablePixelTs
 	}
 	return data?.data?.act?.data?.[0]?.data?.nextAvailablePixelTimestamp
-}
-
-
-async function getAccessToken() {
-	const usingOldReddit = window.location.href.includes('new.reddit.com');
-	const url = usingOldReddit ? 'https://new.reddit.com/r/place/' : 'https://www.reddit.com/r/place/';
-	const response = await fetch(url);
-	const responseText = await response.text();
-
-	// TODO: ew
-	return responseText.split('\"accessToken\":\"')[1].split('"')[0];
-}
-
-
-function rgbToHex(r, g, b) {
-	return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 }

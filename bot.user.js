@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         SR2 Bot
 // @namespace    https://github.com/KellyNyanbinary/sfg-place-bot
-// @version      4
+// @version      0
 // @description  SimpleRockets Chat community bot
-// @author       14ROVI
+// @author       14ROVI and KellyNyanbinary
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
-// @require	     https://cdn.jsdelivr.net/npm/toastify-js
+// @require	 https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
 // @updateURL    https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js
 // @downloadURL  https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js

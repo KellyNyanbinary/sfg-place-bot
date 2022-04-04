@@ -143,6 +143,8 @@ async function attemptPlace() {
 		);
 		return;
 	}
+
+	setTimeout(attemptPlace, 30000); // probeer opnieuw in 30sec.
 }
 
 

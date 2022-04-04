@@ -58,6 +58,7 @@ const COLOR_MAPPINGS = {
 	'#FFFFFF': 31
 };
 
+
 (async function () {
 	GM_addStyle(GM_getResourceText('TOASTIFY_CSS'));
 	canvas.width = 2000;
@@ -79,12 +80,14 @@ const COLOR_MAPPINGS = {
 	attemptPlace();
 })();
 
+
 function shuffleWeighted(array) {
 	for (const item of array) {
 		item.rndPriority = Math.round(placeOrders.priorities[item.priority] * Math.random());
 	}
 	array.sort((a, b) => b.rndPriority - a.rndPriority);
 }
+
 
 function getPixelList() {
 	const structures = [];
@@ -102,36 +105,14 @@ function getPixelList() {
 	return structures.map(structure => structure.pixels).flat();
 }
 
+
 async function attemptPlace() {
-	var ctx;
-	try {
-		ctx = await getCanvasFromUrl(await getCurrentImageUrl('0'), canvas, 0, 0);
-		ctx = await getCanvasFromUrl(await getCurrentImageUrl('1'), canvas, 1000, 0)
-		ctx = await getCanvasFromUrl(await getCurrentImageUrl('2'), canvas, 0, 1000)
-		ctx = await getCanvasFromUrl(await getCurrentImageUrl('3'), canvas, 1000, 1000)
-
-	} catch (e) {
-		console.warn('Error getting pixel art:', e);
-		Toastify({
-			text: 'Error getting pixel art, trying again in 10s',
-			duration: 10000
-		}).showToast();
-		setTimeout(attemptPlace, 15000); // probeer opnieuw in 15sec.
-		return;
-	}
-
 	const pixelList = getPixelList();
 
 	for (const order of pixelList) {
 		const x = order.x;
 		const y = order.y;
 		const colorId = COLOR_MAPPINGS[order.color] ?? order.color;
-
-		const rgbaAtLocation = ctx.getImageData(x, y, 1, 1).data;
-		const hex = rgbToHex(rgbaAtLocation[0], rgbaAtLocation[1], rgbaAtLocation[2]);
-		const currentColorId = COLOR_MAPPINGS[hex];
-		// Pixel already set
-		if (currentColorId == colorId) continue;
 
 		Toastify({
 			text: `Placing pixel at (${x}, ${y}) ${hex}`,
@@ -162,6 +143,7 @@ async function attemptPlace() {
 	
 	setTimeout(attemptPlace, 30000); // probeer opnieuw in 30sec.
 }
+
 
 function updateOrders() {
 	fetch(`https://14rovi.github.io/sr2-place-bot/pixel.json`, {cache: "no-store"}).then(async (response) => {
@@ -269,6 +251,7 @@ async function place(x, y, color) {
 	return data?.data?.act?.data?.[0]?.data?.nextAvailablePixelTimestamp
 }
 
+
 async function getAccessToken() {
 	const usingOldReddit = window.location.href.includes('new.reddit.com');
 	const url = usingOldReddit ? 'https://new.reddit.com/r/place/' : 'https://www.reddit.com/r/place/';
@@ -279,83 +262,6 @@ async function getAccessToken() {
 	return responseText.split('\"accessToken\":\"')[1].split('"')[0];
 }
 
-async function getCurrentImageUrl(id = '0') {
-	return new Promise((resolve, reject) => {
-		const ws = new WebSocket('wss://gql-realtime-2.reddit.com/query', 'graphql-ws');
-
-		ws.onopen = () => {
-			ws.send(JSON.stringify({
-				'type': 'connection_init',
-				'payload': {
-					'Authorization': `Bearer ${accessToken}`
-				}
-			}));
-			ws.send(JSON.stringify({
-				'id': '1',
-				'type': 'start',
-				'payload': {
-					'variables': {
-						'input': {
-							'channel': {
-								'teamOwner': 'AFD2022',
-								'category': 'CANVAS',
-								'tag': id
-							}
-						}
-					},
-					'extensions': {},
-					'operationName': 'replace',
-					'query': `subscription replace($input: SubscribeInput!) {
-						subscribe(input: $input) {
-							id
-							... on BasicMessage {
-								data {
-									__typename
-									... on FullFrameMessageData {
-										__typename
-										name
-										timestamp
-									}
-								}
-								__typename
-							}
-							__typename
-						}
-					}
-					`
-				}
-			}));
-		};
-
-		ws.onmessage = (message) => {
-			const { data } = message;
-			const parsed = JSON.parse(data);
-
-			// TODO: ew
-			if (!parsed.payload || !parsed.payload.data || !parsed.payload.data.subscribe || !parsed.payload.data.subscribe.data) return;
-
-			ws.close();
-			resolve(parsed.payload.data.subscribe.data.name + `?noCache=${Date.now() * Math.random()}`);
-		}
-
-
-		ws.onerror = reject;
-	});
-}
-
-function getCanvasFromUrl(url, canvas, x = 0, y = 0) {
-	return new Promise((resolve, reject) => {
-		var ctx = canvas.getContext('2d');
-		var img = new Image();
-		img.crossOrigin = 'anonymous';
-		img.onload = () => {
-			ctx.drawImage(img, x, y);
-			resolve(ctx);
-		};
-		img.onerror = reject;
-		img.src = url;
-	});
-}
 
 function rgbToHex(r, g, b) {
 	return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         SR2 Bot
-// @namespace    https://github.com/14ROVI/sr2-place-bot
+// @namespace    https://github.com/KellyNyanbinary/sfg-place-bot
 // @version      4
 // @description  SimpleRockets Chat community bot
 // @author       14ROVI
@@ -9,8 +9,8 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
 // @require	     https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @updateURL    https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js
-// @downloadURL  https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js
+// @updateURL    https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js
+// @downloadURL  https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -104,7 +104,7 @@ async function attemptPlace() {
 
 async function getPixelData() {
 	let response = await fetch(
-		"https://14rovi.github.io/sr2-place-bot/pixel.json",
+		"https://kellynyanbinary.github.io/pixel.json",
 		{cache: "no-store"}
 	)
 	if (!response.ok)
@@ -125,10 +125,10 @@ async function getPixelData() {
 	if (pixelData.version !== VERSION && !UPDATE_PENDING) {
 		UPDATE_PENDING = true
 		Toastify({
-			text: `NEW VERSION: https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js`,
+			text: `NEW VERSION: https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js`,
 			duration: -1,
 			onClick: () => {
-				window.location = 'https://github.com/14ROVI/sr2-place-bot/raw/main/bot.user.js'
+				window.location = 'https://github.com/kellynyanbinary/sfg-place-bot/raw/main/bot.user.js'
 			}
 		}).showToast();
 	}
